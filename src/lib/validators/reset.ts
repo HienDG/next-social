@@ -1,17 +1,7 @@
 import { z } from "zod";
 
-const signUpSchema = z
+const resetSchema = z
   .object({
-    username: z
-      .string()
-      .min(1, { message: "This field has to be filled" })
-      .max(30, "Username cannot exceed more than 30 characters "),
-
-    email: z
-      .string()
-      .min(1, { message: "This field has to be filled." })
-      .email("This is not a valid email."),
-
     password: z
       .string()
       .min(4, { message: "Password length should be at least 4 characters" })
@@ -27,12 +17,12 @@ const signUpSchema = z
     if (password !== confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "The passwords did not match",
+        message: "Confirm passwords did not match",
         path: ["confirmPassword"],
       });
     }
   });
 
-export type SignUpSchema = z.infer<typeof signUpSchema>;
+export type ResetSchema = z.infer<typeof resetSchema>;
 
-export default signUpSchema;
+export default resetSchema;

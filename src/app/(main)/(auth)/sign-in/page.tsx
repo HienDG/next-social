@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
+import Link from "next/link";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -11,8 +12,7 @@ import { FormController, InputField, Button } from "@src/components/ui";
 
 import { useModal } from "@src/hooks";
 import { signInSchema, type SignInSchema } from "@src/lib/validators";
-import { SIGN_UP_URL, HOME_URL } from "@src/utils/config";
-import axios from "axios";
+import { SIGN_UP_URL, HOME_URL, FORGOT_PASSWORD_URL } from "@src/utils/config";
 
 const SignIn: React.FC = () => {
   const router = useRouter();
@@ -21,20 +21,14 @@ const SignIn: React.FC = () => {
   const {
     register,
     reset,
-    formState: { errors, isLoading },
     handleSubmit,
+    formState: { errors, isDirty, isValid },
   } = useForm<SignInSchema>({
     resolver: zodResolver(signInSchema),
     mode: "onChange",
-    defaultValues: async () => {
-      const { data } = await axios.get("/api/remember");
-
-      const { email, password } = data.data;
-
-      return {
-        email,
-        password,
-      };
+    defaultValues: {
+      email: "",
+      password: "",
     },
   });
 
@@ -57,16 +51,6 @@ const SignIn: React.FC = () => {
     onClose();
   };
 
-  useEffect(() => {
-    if (isLoading) {
-      onOpen("loading");
-    }
-
-    return () => {
-      onClose();
-    };
-  }, [isLoading, onClose, onOpen]);
-
   return (
     <FormController onSubmit={handleSubmit(onSubmit)}>
       <InputField
@@ -87,12 +71,20 @@ const SignIn: React.FC = () => {
         {...register("password")}
       />
 
-      <div>
-        <div className="my-4 text-primary hover:underline font-semibold w-fit cursor-pointer">
-          Forgot password?
-        </div>
+      <div className="flex flex-col">
+        <Link
+          href={FORGOT_PASSWORD_URL}
+          className="my-4 text-error text-end w-full hover:underline font-semibold cursor-pointer block"
+        >
+          Forgot password ?
+        </Link>
 
-        <Button type="submit" className="w-full rounded-full hover:text-base-100" variant="primary">
+        <Button
+          type="submit"
+          className="w-full rounded-full hover:text-base-100"
+          variant="primary"
+          disabled={!isValid || !isDirty}
+        >
           Sign In
         </Button>
       </div>

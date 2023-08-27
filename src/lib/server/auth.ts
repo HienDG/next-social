@@ -20,59 +20,59 @@ const GITHUB_ID = stringSchema.parse(process.env.GITHUB_ID);
 const GITHUB_SECRET = stringSchema.parse(process.env.GITHUB_SECRET);
 
 const authOptions: AuthOptions = {
-	adapter: PrismaAdapter(db) as Adapter,
-	providers: [
-		GoogleProvider({
-			clientId: GOOGLE_CLIENT_ID,
-			clientSecret: GOOGLE_CLIENT_SECRET,
-		}),
-		GitHubProvider({
-			clientId: GITHUB_ID,
-			clientSecret: GITHUB_SECRET,
-		}),
-		CredentialsProvider({
-			name: "Credentials",
-			credentials: {
-				email: { label: "email", type: "email" },
-				password: { label: "password", type: "password" },
-			},
+  adapter: PrismaAdapter(db) as Adapter,
+  providers: [
+    GoogleProvider({
+      clientId: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+    }),
+    GitHubProvider({
+      clientId: GITHUB_ID,
+      clientSecret: GITHUB_SECRET,
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "email", type: "email" },
+        password: { label: "password", type: "password" },
+      },
 
-			authorize: async (credentials) => {
-				const result = signInSchema.safeParse(credentials);
+      authorize: async (credentials) => {
+        const result = signInSchema.safeParse(credentials);
 
-				if (!result.success) throw new Error("Invalid Credentials");
+        if (!result.success) throw new Error("Invalid Credentials");
 
-				const { email, password } = result.data;
+        const { email, password } = result.data;
 
-				// find  user by email`
-				const currentUser = await db.user.findUnique({
-					where: {
-						email,
-					},
-				});
+        // find  user by email`
+        const currentUser = await db.user.findUnique({
+          where: {
+            email,
+          },
+        });
 
-				// check if user does not exists
-				if (!currentUser || !currentUser.password) throw new Error("User does not exists");
+        // check if user does not exists
+        if (!currentUser || !currentUser.password) throw new Error("User does not exists");
 
-				// compare between hash password and  password
-				const isCorrectPassword = await bcrypt.compare(password, currentUser.password);
+        // compare between hash password and  password
+        const isCorrectPassword = await bcrypt.compare(password, currentUser.password);
 
-				if (!isCorrectPassword) throw new Error("Password does not correct");
+        if (!isCorrectPassword) throw new Error("Password does not correct");
 
-				return currentUser;
-			},
-		}),
-	],
+        return currentUser;
+      },
+    }),
+  ],
 
-	pages: {
-		signIn: "/sign-in",
-	},
+  pages: {
+    signIn: "/sign-in",
+  },
 
-	secret: process.env.NEXTAUTH_SECRET,
-	debug: process.env.NODE_ENV === "development",
-	session: {
-		strategy: "jwt",
-	},
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
+  session: {
+    strategy: "jwt",
+  },
 };
 
 export default authOptions;

@@ -1,5 +1,4 @@
 import bcrypt from "bcrypt";
-import { cookies } from "next/headers";
 
 import { db } from "@src/lib/server";
 import { signUpSchema } from "@src/lib/validators";
@@ -20,27 +19,20 @@ function randName() {
 }
 
 export const POST = async (request: Request) => {
-  const cookieStore = cookies();
-
   try {
     const data = await request.json();
 
-    const result = signUpSchema.safeParse(data);
+    const result = await signUpSchema.spa(data);
 
     if (!result.success) {
       return Response.json({ message: "Invalid data" }, { status: 400 });
     }
 
-    const { email, username: name, password, remember } = result.data;
+    const { email, username: name, password } = result.data;
 
     const salt = await bcrypt.genSalt(12);
 
     const hashedPassword = await bcrypt.hash(password, salt);
-
-    if (remember) {
-      cookieStore.set("email", email, { secure: true });
-      cookieStore.set("password", password, { secure: true });
-    }
 
     const username = randName();
 

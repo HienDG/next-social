@@ -23,7 +23,7 @@ const SignUp: React.FC<SignUpProps> = () => {
   const {
     register,
     reset,
-    formState: { errors },
+    formState: { errors, isValid, isDirty },
     handleSubmit,
   } = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
@@ -33,14 +33,13 @@ const SignUp: React.FC<SignUpProps> = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      remember: false,
     },
   });
 
   const onSubmit: SubmitHandler<SignUpSchema> = async (data) => {
     onOpen("loading"); // open loading modal
 
-    const { username, email, password, confirmPassword, remember } = data;
+    const { username, email, password, confirmPassword } = data;
 
     try {
       // make a post request to register endpoint
@@ -49,7 +48,6 @@ const SignUp: React.FC<SignUpProps> = () => {
         email,
         password,
         confirmPassword,
-        remember,
       });
 
       const res = await signIn("credentials", {
@@ -107,15 +105,13 @@ const SignUp: React.FC<SignUpProps> = () => {
         {...register("confirmPassword")}
       />
 
-      <div className="form-control">
-        <label className="label justify-start gap-2 cursor-pointer">
-          <input type="checkbox" className="checkbox" {...register("remember")} />
-          <span className="label-text">Remember me</span>
-        </label>
-      </div>
-
       <div>
-        <Button type="submit" className="w-full rounded-full hover:text-base-100" variant="primary">
+        <Button
+          type="submit"
+          className="w-full rounded-full hover:text-base-100"
+          variant="primary"
+          disabled={!isDirty || !isValid}
+        >
           Sign up
         </Button>
       </div>
