@@ -3,19 +3,19 @@
 @tailwind utilities;
 
 @layer base {
-	body {
-		@apply scrollbar-hide;
-	}
+  body {
+    @apply scrollbar-hide;
+  }
 }
 
 @layer utilities {
-	.btn {
-		@apply h-10 min-h-0 normal-case;
-	}
+  .btn {
+    @apply h-10 min-h-0 normal-case;
+  }
 
-	.input,
-	.input:hover,
-	.input:focus {
-		outline: 0;
-	}
+  .input,
+  .input:hover,
+  .input:focus {
+    outline: 0;
+  }
 }
